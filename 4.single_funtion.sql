@@ -218,12 +218,14 @@ FROM tb_sal;
 -- expr1: Null을 가질 수 있는 값이나 표현식
 -- expr2: expr1이 Null일 경우 대체할 값
 SELECT 
-    emp_no,
-    emp_nm,
-    NVL(direct_manager_emp_no, '최상위관리자') AS 관리자
+    emp_no
+    , emp_nm
+    , NVL(direct_manager_emp_no, '최상위관리자') AS 관리자
 FROM tb_emp;
 
+-- null이 아니면 변경X
 SELECT 
+    -- emp_nm, emp_no
     NVL(emp_nm, '존재안함') AS emp_nm
 FROM tb_emp
 WHERE emp_nm = '이정직';
@@ -234,20 +236,23 @@ FROM tb_emp
 WHERE emp_nm = '김회장'
 ;
 
-
+-- 없는거 검색시 null(조회가능)이 아니라 행 조회X(조회불가능-공집합)
 SELECT 
-    NVL(MAX(emp_nm), '존재안함') AS emp_nm
+--    NVL(emp_nm , '존재안함') AS emp_nm 얘는 검색XX
+    -- MAX, MIN에 공집합이 들어가면 null로 만들어줌
+    -- emp_nm에서 null이 나오면 존재안함으로 바꿔주세요~
+     NVL(MAX(emp_nm), '존재안함') AS emp_nm
 FROM tb_emp
 WHERE emp_nm = '박찬호';
 
 -- NVL2(expr1, expr2, expr3)
--- expr1의 값이 Null이 아니면 expr2를 반환, Null이면 expr3를 반환
+-- expr1의 값이 Null이 아니면 expr2를 반환, Null이면 expr3를 반환 like ifelse
 SELECT 
     emp_nm,
     NVL2(direct_manager_emp_no, '일반사원', '회장님') AS 직위
 FROM tb_emp;
 
--- NULLIF(expr1, expr2)
+-- NULLIF(expr1, expr2): 값비교시 사용
 -- 두 값이 같으면 NULL리턴, 다르면 expr1 리턴
 SELECT
     NULLIF('박찬호', '박찬호')
@@ -261,7 +266,7 @@ FROM dual;
 -- 많은 표현식 중 Null이 아닌 값이 최초로 발견되면 해당 값을 리턴
 SELECT 
     COALESCE(NULL, NULL, 3000, 4000)
-FROM dual;
+FROM dual;                                                                                             
 
 SELECT 
     COALESCE(NULL, 5000, NULL, 2000)
