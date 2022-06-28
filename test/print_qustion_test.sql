@@ -349,3 +349,118 @@ FROM (
     ON (A.부서코드 = B.부서코드)
     ORDER BY A.부서코드;
 
+-- ============================================================================================
+
+
+
+-- 80번
+
+create table service(
+    ser_id VARCHAR2(10)
+    , ser_title VARCHAR2(10)
+    , ser_url VARCHAR2(30)
+)
+;
+
+
+insert into service values('B001', 'naver', 'naver.com');
+insert into service values('B002', 'daum', 'daum.com');
+insert into service values('B003', 'coupang', 'coupang.com');
+
+SELECT
+    * FROM service;
+    
+commit;
+
+create table using_service(
+    using_userid VARCHAR2(10)
+    , using_serid VARCHAR2(10)
+    , using_date VARCHAR2(30)
+)
+;
+
+insert into using_service values('A001', 'B001', '20220628');
+insert into using_service values('A001', 'B002', '20220627');
+insert into using_service values('A002', 'B001', '20220620');
+insert into using_service values('A002', 'B002', '20220520');
+insert into using_service values('A002', 'B001', '20220420');
+
+SELECT
+    * FROM using_service;
+
+create table user_80(
+    userid VARCHAR2(10)
+    , using_name VARCHAR2(10)
+)
+;
+
+insert into user_80 values('A001', '김철수');
+insert into user_80 values('A002', '박영희');
+
+SELECT
+    * FROM user_80;
+    
+    commit;
+
+-- 보기
+
+select 
+    A.ser_id, B.ser_title , B.ser_url
+from (
+    select ser_id
+    from service
+    INTERSECT
+    select using_serid
+    from using_service ) A , service B
+where A.ser_id = B.ser_id
+;
+
+-- 1번
+SELECT
+    B.using_serid, A.ser_title ,A.ser_url   
+FROM service A, using_service B
+where A.ser_id = B.using_serid
+;
+
+-- 2번
+SELECT
+    X.ser_id, X.ser_title ,X.ser_url   
+FROM service X
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM (
+        SELECT ser_id
+        From service
+        minus
+        SELECT using_serid
+        From using_service ) Y
+   where X.ser_id = Y.ser_id );
+
+-- 3번
+SELECT 
+    B.using_serid, A.ser_title, A.ser_url
+FROM service A
+LEFT OUTER JOIN using_service B
+on (A.ser_id = B.using_serid)
+where B.using_serid is NULL
+GROUP BY B.using_serid, A.ser_title, A.ser_url
+;
+
+
+-- 4번
+SELECT
+    A.ser_id ,A.ser_title ,A.ser_url   
+FROM service A
+where ser_id in (
+    SELECT using_serid
+    FROM using_service
+    minus
+    SELECT ser_id
+    FROM service
+);
+
+
+-- 79
+
+create table1
+
